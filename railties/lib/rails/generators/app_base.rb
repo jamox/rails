@@ -90,7 +90,26 @@ module Rails
         convert_database_option_for_jruby
       end
 
-    protected
+      def apply(path, config={})
+        verbose = config.fetch(:verbose, true)
+        target  = config.fetch(:target, self)
+        is_uri  = path =~ /^https?\:\/\//
+        path    = find_in_source_paths(path) unless is_uri
+
+        say_status :apply, path, verbose
+        shell.padding += 1 if verbose
+
+        if is_uri
+          contents = open(path, "Accept" => "application/x-thor-template") {|io| io.read }
+        else
+          contents = open(path) {|io| io.read }
+        end
+
+        target.instance_eval(contents, path)
+        shell.padding -= 1 if verbose
+      end
+
+      protected
 
       def gemfile_entry(name, *args)
         options = args.extract_options!
@@ -202,24 +221,6 @@ module Rails
         @recorder.replay! if @recorder
       end
 
-      def apply(path, config={})
-        verbose = config.fetch(:verbose, true)
-        target  = config.fetch(:target, self)
-        is_uri  = path =~ /^https?\:\/\//
-        path    = find_in_source_paths(path) unless is_uri
-
-        say_status :apply, path, verbose
-        shell.padding += 1 if verbose
-
-        if is_uri
-          contents = open(path, "Accept" => "application/x-thor-template") {|io| io.read }
-        else
-          contents = open(path) {|io| io.read }
-        end
-
-        target.instance_eval(contents, path)
-        shell.padding -= 1 if verbose
-      end
 
       def set_default_accessors!
         self.destination_root = File.expand_path(app_path, destination_root)
