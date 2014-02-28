@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 gemspec
 
+gem 'mail', path: "/Users/jamo/git/oss/mail"
 # This needs to be with require false as it is
 # loaded after loading the test library to
 # ensure correct loading order

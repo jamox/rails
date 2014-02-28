@@ -103,6 +103,7 @@ class BaseTest < ActiveSupport::TestCase
   test "attachment with content and a filename with quotes" do
     email = BaseMailer.attachment_with_quotes_in_filename
     assert_equal(1, email.attachments.length)
+    p email.attachments[0].method(:filename).source_location
     assert_equal('invoice "for you".pdf', email.attachments[0].filename)
     assert_equal('This is test File content', email.attachments['invoice "for you".pdf'].decoded)
   end
